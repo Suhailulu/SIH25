@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,7 +8,47 @@ html, body, #root {
   height: 100%;
 }
 
+:root {
+  --ink: #17202a;
+  --muted: #65717e;
+  --line: #dce4e8;
+  --paper: #f5f7f5;
+  --blue: #1261d6;
+  --blue-dark: #0d3b78;
+  --coral: #e96b4c;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: 'DM Sans', sans-serif;
+  background-image: linear-gradient(rgba(18, 97, 214, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(18, 97, 214, 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0;
+}
+
+a, button { transition: 180ms ease; }
+
+button, a { outline-offset: 3px; }
+
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 3px solid rgba(233, 107, 76, 0.45);
+}
+
 /* Basic utility classes for the prototype */
-.container { @apply max-w-5xl mx-auto px-4; }
+.container { @apply max-w-6xl mx-auto px-4 sm:px-6; }
 .header { @apply py-8; }
-.card { @apply bg-white shadow rounded p-6; }
+.card { @apply bg-white p-6; border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 14px 35px rgba(23, 32, 42, 0.06); }
+
+.app-shell { min-height: 100%; }
+.eyebrow { color: var(--blue); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+.button-primary { @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-white; background: var(--blue); border-radius: 10px; font-weight: 700; box-shadow: 0 8px 16px rgba(18, 97, 214, 0.2); }
+.button-primary:hover { background: var(--blue-dark); transform: translateY(-1px); }
+.button-secondary { @apply inline-flex items-center justify-center gap-2 px-4 py-2.5; border: 1px solid var(--line); border-radius: 10px; font-weight: 700; background: rgba(255, 255, 255, 0.72); }
+.button-secondary:hover { border-color: var(--blue); color: var(--blue); }
+.soft-panel { border: 1px solid rgba(18, 97, 214, 0.12); border-radius: 18px; background: linear-gradient(135deg, #e9f2ff, #fff7ef); }
