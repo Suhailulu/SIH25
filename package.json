@@ -7,6 +7,7 @@
     "test": "vitest",
     "build": "vite build",
     "preview": "vite preview",
+    "detect:recurring": "node scripts/detect-recurring-issues.mjs",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\""
   },
   "dependencies": {

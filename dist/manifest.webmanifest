@@ -1,0 +1,9 @@
+{
+  "name": "TransitJustice",
+  "short_name": "TransitJustice",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#2563eb",
+  "description": "Report, track, and resolve public transport complaints."
+}

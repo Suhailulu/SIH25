@@ -35,13 +35,14 @@ describe('messages service', () => {
 
   it('sendMessage inserts message and creates notifications', async () => {
     const inserted = { id: 'm2', message: 'hi' }
-    const insertMock = vi.fn().mockResolvedValue({ data: inserted, error: null })
-    const selectMock = vi.fn().mockReturnValue({ insert: insertMock })
+    const messageSingleMock = vi.fn().mockResolvedValue({ data: inserted, error: null })
+    const insertSelectMock = vi.fn().mockReturnValue({ single: messageSingleMock })
+    const insertMock = vi.fn().mockReturnValue({ select: insertSelectMock })
 
     // mock complaint select
     const complaintSingle = { id: 'c1', passenger_id: 'p1', assigned_officer_id: 'o1', complaint_number: 'TJ-2026-000001' }
-    const singleMock = vi.fn().mockResolvedValue({ data: complaintSingle })
-    const eqForComplaint = vi.fn(() => ({ single: singleMock }))
+    const complaintSingleMock = vi.fn().mockResolvedValue({ data: complaintSingle })
+    const eqForComplaint = vi.fn(() => ({ single: complaintSingleMock }))
     const selectForComplaint = vi.fn(() => ({ eq: eqForComplaint }))
 
     ;(supabase.from as any).mockImplementation((table: string) => {
