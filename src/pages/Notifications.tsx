@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { getNotificationsForUser, markNotificationRead, markAllNotificationsRead, subscribeToNotifications } from '../services/notifications'
+import { useToasts } from '../contexts/ToastContext'
 
 export default function NotificationsPage() {
   const { user } = useAuth()
+  const { push } = useToasts()
   const [notifications, setNotifications] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -16,6 +18,7 @@ export default function NotificationsPage() {
       if (res.data) setNotifications(res.data)
       unsub = subscribeToNotifications(user.id, (n) => {
         setNotifications((s) => [n, ...s])
+        if (n && n.title) push({ title: n.title, message: n.message })
       })
     })()
 

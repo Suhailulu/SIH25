@@ -6,10 +6,12 @@ import { getMessagesForComplaint } from '../../../services/messages'
 import { supabase } from '../../../lib/supabase'
 import { subscribeToMessages } from '../../../services/messages'
 import { subscribeToEvidence } from '../../../services/complaints'
+import { useToasts } from '../../../contexts/ToastContext'
 
 export default function ComplaintDetails() {
   const { id } = useParams()
   const { user } = useAuth()
+  const { push } = useToasts()
   const [complaint, setComplaint] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [evidenceLinks, setEvidenceLinks] = useState<Record<string,string>>({})
@@ -53,12 +55,14 @@ export default function ComplaintDetails() {
         // subscribe to realtime messages and evidence
         const msgSub = subscribeToMessages(id, (m) => {
           setMessages((s) => [...s, m])
+          if (m && !m.is_internal) push({ title: 'New message', message: m.message })
         })
         const evSub = subscribeToEvidence(id, async (e) => {
           // fetch signed url and append
           if (e.file_path) {
             const signed = await getEvidenceSignedUrl(e.file_path, 60)
             if (signed.data) setEvidenceLinks((s) => ({ ...s, [e.id]: signed.data.signedUrl }))
+            push({ title: 'New evidence', message: `New evidence uploaded for ${complaint.complaint_number}` })
           }
         })
         // cleanup when id changes/unmount
