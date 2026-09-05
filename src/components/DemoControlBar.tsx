@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useTransport } from '../contexts/TransportContext'
 import { useLanguage } from '../contexts/LanguageContext'
+import { useAuth } from '../contexts/AuthContext'
 import { Sliders, Play, Pause, AlertTriangle, Clock, RefreshCw, ShieldAlert, CheckCircle } from 'lucide-react'
 
 export default function DemoControlBar() {
@@ -15,6 +16,7 @@ export default function DemoControlBar() {
     setUserRole
   } = useTransport()
 
+  const { switchDemoRole } = useAuth()
   const { t } = useLanguage()
   const [isOpen, setIsOpen] = useState(false)
   const [lastAction, setLastAction] = useState<string | null>(null)
@@ -98,15 +100,18 @@ export default function DemoControlBar() {
             <div>
               <div className="text-[11px] text-slate-400 font-semibold mb-1">Switch Application View:</div>
               <div className="inline-flex rounded-lg border border-slate-700 p-0.5 bg-slate-800">
-                {(['passenger', 'authority', 'admin'] as const).map((r) => (
+                {(['passenger', 'driver', 'admin', 'super_admin'] as const).map((r) => (
                   <button
                     key={r}
-                    onClick={() => setUserRole(r)}
-                    className={`px-2.5 py-1 text-[11px] font-bold rounded capitalize transition ${
+                    onClick={() => {
+                      setUserRole(r)
+                      switchDemoRole(r)
+                    }}
+                    className={`px-2 py-1 text-[10px] font-bold rounded capitalize transition ${
                       userRole === r ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
                     }`}
                   >
-                    {r}
+                    {r.replace('_', ' ')}
                   </button>
                 ))}
               </div>

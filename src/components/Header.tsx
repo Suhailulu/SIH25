@@ -167,13 +167,31 @@ export default function Header() {
               )}
             </Link>
 
-            {/* Admin or Authority Link if selected role */}
-            {(userRole === 'admin' || userRole === 'authority') && (
+            {/* Role-Specific Portal Links */}
+            {user?.role === 'driver' && (
+              <Link
+                to="/driver/dashboard"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition"
+              >
+                <span>Driver Cockpit</span>
+              </Link>
+            )}
+
+            {user?.role === 'admin' && (
               <Link
                 to="/admin"
-                className="hidden sm:inline-flex items-center px-2.5 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-slate-800"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs transition"
               >
-                Authority Portal
+                <span>Depot Admin</span>
+              </Link>
+            )}
+
+            {user?.role === 'super_admin' && (
+              <Link
+                to="/super-admin"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-xs transition"
+              >
+                <span>Super Admin</span>
               </Link>
             )}
 
@@ -191,27 +209,48 @@ export default function Header() {
               <div className="flex items-center gap-1.5">
                 <Link
                   to="/profile"
-                  title="Profile"
-                  className="p-1.5 rounded-lg text-slate-700 hover:text-[#1261d6] hover:bg-white"
+                  title={`${user.name || user.email} (${user.role})`}
+                  className="flex items-center gap-1.5 p-1 rounded-xl hover:bg-slate-100 transition"
                 >
-                  <UserCircle size={22} />
+                  <UserCircle size={22} className="text-slate-700" />
+                  <span className="hidden md:inline-block text-[11px] font-bold text-slate-800 max-w-[100px] truncate">
+                    {user.name?.split(' ')[0] || user.email}
+                  </span>
+                  <span className={`hidden md:inline-block px-1.5 py-0.2 rounded text-[9px] font-extrabold uppercase ${
+                    user.role === 'super_admin'
+                      ? 'bg-purple-100 text-purple-800'
+                      : user.role === 'driver'
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : user.role === 'admin'
+                      ? 'bg-amber-100 text-amber-800'
+                      : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    {user.role}
+                  </span>
                 </Link>
                 <button
                   onClick={handleSignOut}
                   title="Sign Out"
-                  className="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50"
+                  className="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition"
                 >
                   <LogOut size={17} />
                 </button>
               </div>
             ) : (
-              <Link
-                to="/profile"
-                className="p-1.5 rounded-lg text-slate-600 hover:text-[#1261d6]"
-                title="Guest Profile"
-              >
-                <UserCircle size={22} />
-              </Link>
+              <div className="flex items-center gap-1.5">
+                <Link
+                  to="/login"
+                  className="button-secondary text-xs py-1.5 px-3 font-bold border-blue-200 text-[#1261d6] hover:bg-blue-50"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/signup"
+                  className="hidden sm:inline-flex button-primary text-xs py-1.5 px-3 font-bold"
+                >
+                  Sign Up
+                </Link>
+              </div>
             )}
 
             {/* Mobile Menu Hamburger */}
@@ -270,6 +309,12 @@ export default function Header() {
               </Link>
               <Link onClick={() => setMobileMenuOpen(false)} to="/admin" className="p-2.5 rounded-lg bg-slate-900 text-white flex items-center gap-2">
                 Admin Console
+              </Link>
+              <Link onClick={() => setMobileMenuOpen(false)} to="/driver/dashboard" className="p-2.5 rounded-lg bg-emerald-700 text-white flex items-center gap-2">
+                Driver Cockpit
+              </Link>
+              <Link onClick={() => setMobileMenuOpen(false)} to="/super-admin" className="p-2.5 rounded-lg bg-purple-700 text-white flex items-center gap-2 col-span-2 justify-center">
+                Super Admin Console
               </Link>
             </div>
           </div>

@@ -47,6 +47,8 @@ import AdminAnalytics from './pages/admin/Analytics'
 
 // New Authority / Admin Suite
 import AdminDashboard from './pages/admin/AdminDashboard'
+import DriverDashboard from './pages/driver/DriverDashboard'
+import SuperAdminPortal from './pages/admin/SuperAdminPortal'
 
 export default function App() {
   return (
@@ -121,6 +123,34 @@ export default function App() {
           <Route path="/admin/tourism" element={<AdminDashboard />} />
           <Route path="/admin/legal" element={<AdminDashboard />} />
           <Route path="/admin/analytics" element={<AdminDashboard />} />
+
+          {/* Driver Cockpit */}
+          <Route
+            path="/driver"
+            element={
+              <RoleProtectedRoute roles={['driver', 'super_admin']}>
+                <DriverDashboard />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="/driver/dashboard"
+            element={
+              <RoleProtectedRoute roles={['driver', 'super_admin']}>
+                <DriverDashboard />
+              </RoleProtectedRoute>
+            }
+          />
+
+          {/* Super Admin Access Governance */}
+          <Route
+            path="/super-admin"
+            element={
+              <RoleProtectedRoute roles={['super_admin']}>
+                <SuperAdminPortal />
+              </RoleProtectedRoute>
+            }
+          />
 
           {/* Existing Authority Endpoints */}
           <Route path="/authority/dashboard" element={<AuthorityDashboard />} />

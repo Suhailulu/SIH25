@@ -1,6 +1,16 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import { LiveBus, BusStop, TransitRoute } from '../types/transport'
+import {
+  Maximize2,
+  Minimize2,
+  Navigation,
+  RotateCcw,
+  Move,
+  Layers,
+  ZoomIn,
+  ZoomOut
+} from 'lucide-react'
 
 interface MapContainerProps {
   buses?: LiveBus[]
@@ -31,27 +41,50 @@ export default function MapContainer({
   const mapInstanceRef = useRef<L.Map | null>(null)
   const markersGroupRef = useRef<L.LayerGroup | null>(null)
 
-  // Initialize Map
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [isDraggingActive, setIsDraggingActive] = useState(false)
+
+  // Initialize Leaflet Map with optimized dragging & pan parameters
   useEffect(() => {
     if (!mapContainerRef.current) return
 
     if (!mapInstanceRef.current) {
-      const map = L.map(mapContainerRef.current, {
+      const mapOptions: any = {
         center,
         zoom,
-        zoomControl: interactive,
+        zoomControl: false, // We provide modern accessible touch controls
         dragging: interactive,
         scrollWheelZoom: interactive,
-        doubleClickZoom: interactive
-      })
+        doubleClickZoom: interactive,
+        boxZoom: interactive,
+        keyboard: interactive,
+        // Vital fix for modern mobile touch dragging: disable Leaflet's legacy tap simulation
+        tap: false,
+        // Smooth inertia panning configuration
+        inertia: true,
+        inertiaDeceleration: 3000,
+        inertiaMaxSpeed: 1500,
+        easeLinearity: 0.2
+      }
+
+      const map = L.map(mapContainerRef.current, mapOptions)
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19
       }).addTo(map)
 
+      // Drag event listeners for UI feedback
+      map.on('dragstart', () => setIsDraggingActive(true))
+      map.on('dragend', () => setIsDraggingActive(false))
+
       markersGroupRef.current = L.layerGroup().addTo(map)
       mapInstanceRef.current = map
+
+      // Invalidate size immediately to prevent grey tile seams
+      setTimeout(() => {
+        map.invalidateSize()
+      }, 100)
     }
 
     return () => {
@@ -61,6 +94,15 @@ export default function MapContainer({
       }
     }
   }, [])
+
+  // Invalidate map size when expanded / restored
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      setTimeout(() => {
+        mapInstanceRef.current?.invalidateSize()
+      }, 200)
+    }
+  }, [isExpanded])
 
   // Update Layers (Polylines, Stops, Buses)
   useEffect(() => {
@@ -162,16 +204,132 @@ export default function MapContainer({
     if (selectedBusId) {
       const selectedBus = buses.find((b) => b.id === selectedBusId)
       if (selectedBus) {
-        map.panTo([selectedBus.currentLocation.latitude, selectedBus.currentLocation.longitude], { animate: true })
+        map.panTo([selectedBus.currentLocation.latitude, selectedBus.currentLocation.longitude], {
+          animate: true,
+          duration: 0.8
+        })
       }
     }
   }, [buses, stops, routes, selectedBusId, onSelectBus, onSelectStop])
 
+  // Recenter Map on Coimbatore Transit Core
+  const handleRecenter = () => {
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.flyTo(center, zoom, { duration: 1 })
+    }
+  }
+
+  // Zoom in / out controls
+  const handleZoomIn = () => {
+    mapInstanceRef.current?.zoomIn()
+  }
+
+  const handleZoomOut = () => {
+    mapInstanceRef.current?.zoomOut()
+  }
+
   return (
-    <div className="relative w-full rounded-2xl overflow-hidden border border-slate-200 shadow-inner" style={{ height }}>
-      <div ref={mapContainerRef} className="w-full h-full" />
-      <div className="absolute top-3 right-3 z-20 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-slate-700 shadow border border-slate-200 pointer-events-none">
-        OpenStreetMap • Demo Live Data
+    <div
+      className={`relative w-full rounded-2xl overflow-hidden border border-slate-200 shadow-md transition-all duration-300 ${
+        isExpanded
+          ? 'fixed inset-4 z-50 rounded-3xl shadow-2xl border-2 border-blue-500'
+          : ''
+      }`}
+      style={{
+        height: isExpanded ? 'calc(100vh - 32px)' : height,
+        touchAction: 'none' // Ensures touch drag gestures pass directly to Leaflet without page jump
+      }}
+    >
+      {/* Leaflet Map DOM Node */}
+      <div
+        ref={mapContainerRef}
+        className={`w-full h-full cursor-grab active:cursor-grabbing ${
+          isDraggingActive ? 'cursor-grabbing' : 'cursor-grab'
+        }`}
+        style={{
+          touchAction: 'none'
+        }}
+      />
+
+      {/* Floating Drag & Pan Assist Indicator */}
+      <div className="absolute top-3 left-3 z-[400] flex items-center gap-2">
+        <div
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-md shadow-md border transition-all ${
+            isDraggingActive
+              ? 'bg-blue-600 text-white border-blue-700 scale-105'
+              : 'bg-white/95 text-slate-700 border-slate-200'
+          }`}
+        >
+          <Move size={14} className={isDraggingActive ? 'animate-bounce' : 'text-[#1261d6]'} />
+          <span>{isDraggingActive ? 'Panning map...' : 'Drag / Pan enabled'}</span>
+        </div>
+
+        {/* Live Buses counter */}
+        {buses.length > 0 && (
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-white/95 backdrop-blur-md text-slate-700 shadow-md border border-slate-200">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>{buses.length} Live Buses</span>
+          </div>
+        )}
+      </div>
+
+      {/* Top-Right Map Status Info */}
+      <div className="absolute top-3 right-3 z-[400] bg-white/95 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-semibold text-slate-700 shadow border border-slate-200 pointer-events-none hidden sm:block">
+        OpenStreetMap • Coimbatore TNSTC
+      </div>
+
+      {/* Right Floating Map Toolbar: Zoom, Recenter, Fullscreen */}
+      <div className="absolute bottom-4 right-4 z-[400] flex flex-col gap-2">
+        {/* Recenter Hub Button */}
+        <button
+          type="button"
+          onClick={handleRecenter}
+          className="h-10 w-10 flex items-center justify-center rounded-xl bg-white/95 hover:bg-white text-slate-700 hover:text-[#1261d6] shadow-lg border border-slate-200 transition active:scale-95"
+          title="Recenter Map on Coimbatore Central Hub"
+          aria-label="Recenter map"
+        >
+          <RotateCcw size={18} />
+        </button>
+
+        {/* Zoom In */}
+        <button
+          type="button"
+          onClick={handleZoomIn}
+          className="h-10 w-10 flex items-center justify-center rounded-xl bg-white/95 hover:bg-white text-slate-700 hover:text-[#1261d6] shadow-lg border border-slate-200 transition active:scale-95"
+          title="Zoom In"
+          aria-label="Zoom in"
+        >
+          <ZoomIn size={18} />
+        </button>
+
+        {/* Zoom Out */}
+        <button
+          type="button"
+          onClick={handleZoomOut}
+          className="h-10 w-10 flex items-center justify-center rounded-xl bg-white/95 hover:bg-white text-slate-700 hover:text-[#1261d6] shadow-lg border border-slate-200 transition active:scale-95"
+          title="Zoom Out"
+          aria-label="Zoom out"
+        >
+          <ZoomOut size={18} />
+        </button>
+
+        {/* Fullscreen / Expand Map Toggle */}
+        <button
+          type="button"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className={`h-10 w-10 flex items-center justify-center rounded-xl text-white shadow-lg transition active:scale-95 ${
+            isExpanded ? 'bg-slate-900 hover:bg-slate-800' : 'bg-[#1261d6] hover:bg-blue-700'
+          }`}
+          title={isExpanded ? 'Restore Map View' : 'Expand Fullscreen Map for Smooth Dragging'}
+          aria-label="Toggle full screen"
+        >
+          {isExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+        </button>
+      </div>
+
+      {/* Bottom Hint for Mobile Commuters */}
+      <div className="absolute bottom-4 left-4 z-[400] bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-lg text-[10px] text-white font-medium shadow pointer-events-none hidden md:block">
+        Use mouse drag or finger swipe to navigate • Expand for distraction-free pan
       </div>
     </div>
   )

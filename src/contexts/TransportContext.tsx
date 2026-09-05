@@ -37,8 +37,8 @@ interface TransportContextType {
   touristDestinations: TouristDestination[]
   legalRules: LegalInformationItem[]
   safeJourney: SafeJourneyState
-  userRole: 'passenger' | 'authority' | 'admin'
-  setUserRole: (role: 'passenger' | 'authority' | 'admin') => void
+  userRole: 'passenger' | 'driver' | 'admin' | 'super_admin' | 'authority'
+  setUserRole: (role: 'passenger' | 'driver' | 'admin' | 'super_admin' | 'authority') => void
   isSimulationRunning: boolean
   setIsSimulationRunning: (running: boolean) => void
 
@@ -67,11 +67,11 @@ interface TransportContextType {
 const TransportContext = createContext<TransportContextType | undefined>(undefined)
 
 const STORAGE_KEYS = {
-  BUSES: 'lst_live_buses',
-  ALERTS: 'lst_alerts',
-  REMINDERS: 'lst_reminders',
-  COMPLAINTS: 'lst_complaints',
-  SAFE_JOURNEY: 'lst_safe_journey',
+  BUSES: 'lst_live_buses_v2_tn',
+  ALERTS: 'lst_alerts_v2_tn',
+  REMINDERS: 'lst_reminders_v2_tn',
+  COMPLAINTS: 'lst_complaints_v2_tn',
+  SAFE_JOURNEY: 'lst_safe_journey_v2_tn',
   ROLE: 'lst_user_role'
 }
 
@@ -120,7 +120,7 @@ export const TransportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return saved ? JSON.parse(saved) : { isActive: false }
   })
 
-  const [userRole, setUserRole] = useState<'passenger' | 'authority' | 'admin'>(() => {
+  const [userRole, setUserRole] = useState<'passenger' | 'driver' | 'admin' | 'super_admin' | 'authority'>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.ROLE)
     return (saved as any) || 'passenger'
   })
