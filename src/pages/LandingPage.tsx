@@ -19,7 +19,7 @@ export default function LandingPage() {
 
           <div className="mt-6 flex gap-3">
             <Link to="/passenger/report" className="bg-blue-600 text-white px-4 py-2 rounded">Report an Issue</Link>
-            <Link to="/passenger/dashboard" className="border border-blue-600 text-blue-600 px-4 py-2 rounded">Track Complaint</Link>
+            <Link to="/track" className="border border-blue-600 text-blue-600 px-4 py-2 rounded">Track Complaint</Link>
           </div>
         </div>
 
@@ -27,7 +27,7 @@ export default function LandingPage() {
           <h3 className="text-xl font-semibold">How it works</h3>
           <ol className="mt-4 space-y-2">
             <li>1. Report — Describe what happened.</li>
-            <li>2. Submit Evidence — Upload your ticket and evidence.</li>
+            <li>2. Submit Evidence — Upload your ticket and supporting evidence.</li>
             <li>3. Review — The relevant authority reviews the grievance.</li>
             <li>4. Track Resolution — Follow the complaint from submission to resolution.</li>
           </ol>

@@ -25,3 +25,27 @@ export async function uploadEvidence(file: File, complaintId: string, uploadedBy
 
   return { data: record, error: recErr || null, publicUrl }
 }
+
+export async function getComplaintsByPassenger(passengerId: string) {
+  const { data, error } = await supabase.from('complaints').select('*').eq('passenger_id', passengerId).order('created_at', { ascending: false })
+  return { data, error }
+}
+
+export async function getComplaintById(id: string) {
+  const { data, error } = await supabase.from('complaints').select('*').eq('id', id).single()
+  return { data, error }
+}
+
+export async function getComplaintByNumber(number: string) {
+  const { data, error } = await supabase.from('complaints').select('*').eq('complaint_number', number).single()
+  return { data, error }
+}
+
+export async function getEvidenceSignedUrl(path: string, expiresSec = 60) {
+  try {
+    const { data, error } = await supabase.storage.from('evidence').createSignedUrl(path, expiresSec)
+    return { data, error }
+  } catch (err) {
+    return { data: null, error: err }
+  }
+}

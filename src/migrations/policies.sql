@@ -47,4 +47,24 @@ CREATE POLICY "admin_full_access_complaints"
   FOR ALL
   USING (EXISTS (SELECT 1 FROM profiles p2 WHERE p2.id = auth.uid() AND p2.role = 'admin'));
 
+-- Authority officers: allow read and update access within authority scope
+CREATE POLICY "authority_read_complaints"
+  ON complaints
+  FOR SELECT USING (EXISTS (SELECT 1 FROM profiles p2 WHERE p2.id = auth.uid() AND p2.role = 'authority'));
+
+CREATE POLICY "authority_update_complaints"
+  ON complaints
+  FOR UPDATE USING (EXISTS (SELECT 1 FROM profiles p2 WHERE p2.id = auth.uid() AND p2.role = 'authority'));
+
+-- allow authority to insert authority_actions and internal messages
+ALTER TABLE IF EXISTS authority_actions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "authority_actions_officer_insert"
+  ON authority_actions
+  FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM profiles p2 WHERE p2.id = auth.uid() AND p2.role = 'authority'));
+
+ALTER TABLE IF EXISTS complaint_messages ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "messages_authority_internal"
+  ON complaint_messages
+  FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM profiles p2 WHERE p2.id = auth.uid() AND p2.role = 'authority'));
+
 -- Note: Adjust and test these policies in your Supabase project carefully.
