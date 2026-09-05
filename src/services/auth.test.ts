@@ -8,7 +8,9 @@ import { supabase } from '../lib/supabase'
 import { getPasswordValidationError, getSession, isValidEmail, normalizeEmail, onAuthStateChange, signInWithEmail, signOut, signUpWithEmail } from './auth'
 
 describe('auth service integration boundary', () => {
-  beforeEach(() => vi.resetAllMocks())
+  beforeEach(() => {
+    vi.resetAllMocks()
+  })
 
   it('passes signup credentials to Supabase Auth', async () => {
     ;(supabase.auth.signUp as any).mockResolvedValue({ data: { user: { id: 'u1' } }, error: null })

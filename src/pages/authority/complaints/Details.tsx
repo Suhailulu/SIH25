@@ -44,7 +44,9 @@ export default function AuthorityComplaintDetails() {
         evSub = subscribeToEvidence(id, async (e) => {
           if (e.file_path) {
             const signed = await getEvidenceSignedUrl(e.file_path, 60)
-            if (signed.data) setEvidenceLinks((s) => ({ ...s, [e.id]: signed.data.signedUrl }))
+            if (signed && signed.data && (signed.data as any).signedUrl) {
+              setEvidenceLinks((s) => ({ ...s, [e.id]: (signed.data as any).signedUrl }))
+            }
           }
         })
       }

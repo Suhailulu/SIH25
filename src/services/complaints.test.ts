@@ -11,7 +11,9 @@ import { supabase } from '../lib/supabase'
 import { createComplaint, getComplaintByNumber, uploadEvidence } from './complaints'
 
 describe('complaint workflow integration boundary', () => {
-  beforeEach(() => vi.resetAllMocks())
+  beforeEach(() => {
+    vi.resetAllMocks()
+  })
 
   it('creates a complaint and returns the database record', async () => {
     const record = { id: 'c1', complaint_number: 'TJ-2026-000001' }

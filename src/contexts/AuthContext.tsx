@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (mounted) setLoading(false)
     })
 
-    const { subscription } = onAuthStateChange(async (event, session) => {
+    const authSub = onAuthStateChange(async (event, session) => {
       if (session?.user && mounted) {
         const id = session.user.id
         const profileRes = await getProfile(id)
@@ -51,7 +51,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => {
       mounted = false
-      subscription?.unsubscribe()
+      const sub = (authSub as any)?.data?.subscription || (authSub as any)?.subscription
+      sub?.unsubscribe?.()
     }
   }, [])
 

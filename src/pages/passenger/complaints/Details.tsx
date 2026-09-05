@@ -35,7 +35,9 @@ export default function ComplaintDetails() {
           for (const e of ev) {
             if (e.file_path) {
               const signed = await getEvidenceSignedUrl(e.file_path, 60)
-              if (signed.data) links[e.id] = signed.data.signedUrl
+              if (signed && signed.data && (signed.data as any).signedUrl) {
+                links[e.id] = (signed.data as any).signedUrl
+              }
             }
           }
           setEvidenceLinks(links)
@@ -61,7 +63,9 @@ export default function ComplaintDetails() {
           // fetch signed url and append
           if (e.file_path) {
             const signed = await getEvidenceSignedUrl(e.file_path, 60)
-            if (signed.data) setEvidenceLinks((s) => ({ ...s, [e.id]: signed.data.signedUrl }))
+            if (signed && signed.data && (signed.data as any).signedUrl) {
+              setEvidenceLinks((s) => ({ ...s, [e.id]: (signed.data as any).signedUrl }))
+            }
             push({ title: 'New evidence', message: `New evidence uploaded for ${complaint.complaint_number}` })
           }
         })
