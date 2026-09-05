@@ -23,9 +23,11 @@ import AdminAnalytics from './pages/admin/Analytics'
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
+    <div className="app-shell text-gray-900">
       <Header />
-      <Routes>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-3 focus:shadow-lg">Skip to main content</a>
+      <main id="main-content" tabIndex={-1}>
+        <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/track" element={<TrackComplaintPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -46,7 +48,8 @@ export default function App() {
         <Route path="/admin/analytics" element={<RoleProtectedRoute roles={[ 'admin' ]}><AdminAnalytics /></RoleProtectedRoute>} />
 
         <Route path="*" element={<div className="p-8">404 — <Link to="/">Home</Link></div>} />
-      </Routes>
+        </Routes>
+      </main>
     </div>
   )
 }

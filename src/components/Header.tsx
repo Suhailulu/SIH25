@@ -29,10 +29,12 @@ export default function Header() {
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1261d6] text-white"><ShieldCheck size={19} /></span>
             Transit<span className="text-[#1261d6]">Justice</span>
           </Link>
-          <nav className="hidden items-center gap-5 text-sm font-semibold text-slate-600 md:flex">
+          <nav aria-label="Primary navigation" className="hidden items-center gap-5 text-sm font-semibold text-slate-600 md:flex">
             <Link className="hover:text-[#1261d6]" to="/passenger/report">Report an issue</Link>
             <Link className="hover:text-[#1261d6]" to="/passenger/complaints">My complaints</Link>
             <Link className="hover:text-[#1261d6]" to="/passenger/rights">Your rights</Link>
+            {(user?.role === 'authority' || user?.role === 'admin') && <Link className="hover:text-[#1261d6]" to="/authority/dashboard">Authority workspace</Link>}
+            {user?.role === 'admin' && <Link className="hover:text-[#1261d6]" to="/admin/analytics">Admin console</Link>}
           </nav>
         </div>
 
@@ -46,6 +48,7 @@ export default function Header() {
 
           {user && (
             <div className="flex items-center gap-3">
+              <span className="hidden rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#1261d6] sm:block">{user.role || 'passenger'}</span>
               <span className="hidden text-sm text-slate-500 lg:block">{user.email}</span>
               <Link aria-label="Notifications" title="Notifications" to="/passenger/notifications" className="relative rounded-lg p-2 text-slate-600 hover:bg-white hover:text-[#1261d6]"><Bell size={19} />{unread > 0 && <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#e96b4c] px-1 text-[10px] font-bold text-white">{unread}</span>}</Link>
               <Link aria-label="Profile" title="Profile" to="/passenger/profile" className="rounded-lg p-2 text-slate-600 hover:bg-white hover:text-[#1261d6]"><UserCircle size={19} /></Link>

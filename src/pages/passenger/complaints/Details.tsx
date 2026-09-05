@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useAuth } from '../../../contexts/AuthContext'
 import { getComplaintById, getEvidenceSignedUrl } from '../../../services/complaints'
-import { getMessagesForComplaint } from '../../../services/messages'
+import { getMessagesForComplaint, sendMessage } from '../../../services/messages'
 import { supabase } from '../../../lib/supabase'
 import { subscribeToMessages } from '../../../services/messages'
 import { subscribeToEvidence } from '../../../services/complaints'
@@ -138,7 +138,6 @@ export default function ComplaintDetails() {
             <div className="mt-2 flex justify-end">
               <button className="bg-blue-600 text-white px-3 py-2 rounded" onClick={async () => {
                 if (!newMessage.trim()) return
-                const { sendMessage } = await import('../../../services/messages')
                 await sendMessage(complaint.id, user.id, newMessage.trim(), false)
                 setMessages((s) => [...s, { id: Date.now().toString(), sender_id: user.id, message: newMessage.trim(), is_internal: false, created_at: new Date().toISOString() }])
                 setNewMessage('')

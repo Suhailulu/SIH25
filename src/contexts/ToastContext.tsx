@@ -25,7 +25,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ toasts, push }}>
       {children}
-      <div className="fixed bottom-6 right-6 w-96 space-y-2 z-50">
+      <div aria-live="polite" aria-atomic="false" className="fixed bottom-6 right-6 z-50 w-[min(24rem,calc(100vw-2rem))] space-y-2">
         {toasts.map((t) => (
           <div key={t.id} className="p-3 bg-white shadow rounded border">
             {t.title && <div className="font-medium">{t.title}</div>}
