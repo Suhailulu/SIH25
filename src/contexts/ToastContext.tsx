@@ -16,7 +16,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     setToasts((s) => [{ id, ...t }, ...s])
     // desktop notification
     if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-      try { new Notification(t.title || 'TransitJustice', { body: t.message }) } catch (e) { /* ignore */ }
+      try { new Notification(t.title || 'Lulu Smart Travel', { body: t.message }) } catch (e) { /* ignore */ }
     }
     // auto-remove
     setTimeout(() => setToasts((s) => s.filter((x) => x.id !== id)), 8000)

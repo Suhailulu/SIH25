@@ -1,4 +1,4 @@
--- TransitJustice schema (PostgreSQL)
+-- Lulu Smart Travel schema (PostgreSQL)
 
 -- profiles
 CREATE TABLE IF NOT EXISTS profiles (

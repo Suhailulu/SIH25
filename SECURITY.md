@@ -1,4 +1,4 @@
-Security guidance — TransitJustice
+Security guidance — Lulu Smart Travel
 
 1) Row Level Security (RLS)
 

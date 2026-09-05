@@ -32,7 +32,7 @@ export default function LandingPage() {
       </section>
 
       <section className="mt-10 grid gap-8 md:grid-cols-[1.1fr_0.9fr] md:items-center">
-        <div><div className="eyebrow">Simple by design</div><h2 className="mt-3 text-3xl font-bold">From frustration to a documented case.</h2><p className="mt-4 max-w-xl leading-7 text-slate-600">TransitJustice gives your complaint structure. Every submission gets a clear status, secure evidence, and a path forward.</p></div>
+        <div><div className="eyebrow">Simple by design</div><h2 className="mt-3 text-3xl font-bold">From frustration to a documented case.</h2><p className="mt-4 max-w-xl leading-7 text-slate-600">Lulu Smart Travel gives your complaint structure. Every submission gets a clear status, secure evidence, and a path forward.</p></div>
         <div className="soft-panel p-6"><h3 className="font-bold">A transparent process</h3><div className="mt-5 space-y-4">{['Describe the incident', 'Attach tickets or evidence', 'Receive authority updates', 'Track the resolution'].map((step) => <div className="flex items-center gap-3 text-sm font-semibold" key={step}><CheckCircle2 className="text-[#1261d6]" size={19} />{step}</div>)}</div></div>
       </section>
     </main>

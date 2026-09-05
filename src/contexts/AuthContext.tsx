@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { getSession, onAuthStateChange } from '../services/auth'
+import { getSession, onAuthStateChange, signInWithEmail, signUpWithEmail } from '../services/auth'
 import { getProfile } from '../services/profiles'
 
 type User = {
@@ -30,21 +30,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (mounted && session?.user) {
         const id = session.user.id
         const profileRes = await getProfile(id)
-        const role = profileRes.data?.role
-        setUser({ id, email: session.user.email || undefined, role })
+        if (mounted) setUser({ id, email: session.user.email || undefined, role: profileRes.data?.role })
       }
-      setLoading(false)
+      if (mounted) setLoading(false)
+    }).catch(() => {
+      if (mounted) setLoading(false)
     })
 
     const { subscription } = onAuthStateChange(async (event, session) => {
-      if (session?.user) {
+      if (session?.user && mounted) {
         const id = session.user.id
         const profileRes = await getProfile(id)
         const role = profileRes.data?.role
-        setUser({ id, email: session.user.email || undefined, role })
-      } else {
+        if (mounted) setUser({ id, email: session.user.email || undefined, role })
+      } else if (mounted) {
         setUser(null)
       }
+      if (mounted) setLoading(false)
     })
 
     return () => {
@@ -54,11 +56,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [])
 
   async function signIn(email: string, password: string) {
-    return supabase.auth.signInWithPassword({ email, password })
+    return signInWithEmail(email, password)
   }
 
   async function signUp(email: string, password: string) {
-    return supabase.auth.signUp({ email, password })
+    return signUpWithEmail(email, password)
   }
 
   async function signOutFn() {
