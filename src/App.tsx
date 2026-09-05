@@ -18,6 +18,7 @@ import ComplaintDetails from './pages/passenger/complaints/Details'
 import RightsPage from './pages/passenger/Rights'
 import TrackComplaintPage from './pages/passenger/TrackComplaint'
 import NotificationsPage from './pages/Notifications'
+import ManageProfiles from './pages/admin/ManageProfiles'
 
 export default function App() {
   return (
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="/authority/complaints" element={<RoleProtectedRoute roles={[ 'authority', 'admin' ]}><AuthorityComplaints /></RoleProtectedRoute>} />
         <Route path="/authority/complaints/:id" element={<RoleProtectedRoute roles={[ 'authority', 'admin' ]}><AuthorityComplaintDetails /></RoleProtectedRoute>} />
         <Route path="/passenger/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+        <Route path="/admin/manage-profiles" element={<RoleProtectedRoute roles={[ 'admin' ]}><ManageProfiles /></RoleProtectedRoute>} />
 
         <Route path="*" element={<div className="p-8">404 — <Link to="/">Home</Link></div>} />
       </Routes>

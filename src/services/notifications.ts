@@ -25,3 +25,18 @@ export async function markAllNotificationsRead(userId: string) {
   const { data, error } = await supabase.from('notifications').update({ is_read: true }).eq('user_id', userId).select()
   return { data, error }
 }
+
+export function subscribeToNotifications(userId: string, onInsert: (payload: any) => void) {
+  if (!userId) return null
+  const channel = supabase.channel(`public:notifications:user=${userId}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` }, (payload) => {
+      try { onInsert(payload.new) } catch (e) { console.error('notify cb error', e) }
+    })
+    .subscribe()
+
+  return {
+    unsubscribe: async () => {
+      try { await channel.unsubscribe() } catch (e) { console.error('unsubscribe error', e) }
+    }
+  }
+}

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useAuth } from '../../../contexts/AuthContext'
 import { getComplaintById, getEvidenceSignedUrl } from '../../../services/complaints'
+import { getMessagesForComplaint } from '../../../services/messages'
 import { supabase } from '../../../lib/supabase'
 
 export default function ComplaintDetails() {
@@ -13,6 +14,8 @@ export default function ComplaintDetails() {
   const [tickets, setTickets] = useState<any[]>([])
   const [witnesses, setWitnesses] = useState<any[]>([])
   const [history, setHistory] = useState<any[]>([])
+  const [messages, setMessages] = useState<any[]>([])
+  const [newMessage, setNewMessage] = useState('')
 
   useEffect(() => {
     if (!id) return
@@ -42,6 +45,9 @@ export default function ComplaintDetails() {
 
         const { data: h } = await supabase.from('complaint_status_history').select('*').eq('complaint_id', id).order('created_at', { ascending: true })
         if (h) setHistory(h)
+
+        const msgs = await getMessagesForComplaint(id)
+        if (msgs.data) setMessages(msgs.data)
       }
     })()
   }, [id])
@@ -94,6 +100,32 @@ export default function ComplaintDetails() {
               <li key={eid}><a className="text-blue-600" href={url} target="_blank" rel="noreferrer">View attachment</a></li>
             ))}
           </ul>
+        </section>
+
+        <section className="mt-4">
+          <h4 className="font-semibold">Messages</h4>
+          {messages.length === 0 && <div className="text-sm text-gray-600">No messages yet.</div>}
+          <div className="mt-2 space-y-2">
+            {messages.map((m) => (
+              <div key={m.id} className={`p-3 rounded ${m.is_internal ? 'bg-gray-100' : 'bg-white'}`}>
+                <div className="text-sm text-gray-600">{m.sender_id} · {new Date(m.created_at).toLocaleString()}</div>
+                <div className="mt-1 text-sm">{m.message}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-3">
+            <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} className="w-full border rounded px-3 py-2 h-20" placeholder="Write a message to the authority" />
+            <div className="mt-2 flex justify-end">
+              <button className="bg-blue-600 text-white px-3 py-2 rounded" onClick={async () => {
+                if (!newMessage.trim()) return
+                const { sendMessage } = await import('../../../services/messages')
+                await sendMessage(complaint.id, user.id, newMessage.trim(), false)
+                setMessages((s) => [...s, { id: Date.now().toString(), sender_id: user.id, message: newMessage.trim(), is_internal: false, created_at: new Date().toISOString() }])
+                setNewMessage('')
+              }}>Send</button>
+            </div>
+          </div>
         </section>
 
         <section className="mt-4">
