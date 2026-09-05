@@ -4,6 +4,8 @@ import { useAuth } from '../../../contexts/AuthContext'
 import { getComplaintById, getEvidenceSignedUrl } from '../../../services/complaints'
 import { getMessagesForComplaint } from '../../../services/messages'
 import { supabase } from '../../../lib/supabase'
+import { subscribeToMessages } from '../../../services/messages'
+import { subscribeToEvidence } from '../../../services/complaints'
 
 export default function ComplaintDetails() {
   const { id } = useParams()
@@ -48,6 +50,19 @@ export default function ComplaintDetails() {
 
         const msgs = await getMessagesForComplaint(id)
         if (msgs.data) setMessages(msgs.data)
+        // subscribe to realtime messages and evidence
+        const msgSub = subscribeToMessages(id, (m) => {
+          setMessages((s) => [...s, m])
+        })
+        const evSub = subscribeToEvidence(id, async (e) => {
+          // fetch signed url and append
+          if (e.file_path) {
+            const signed = await getEvidenceSignedUrl(e.file_path, 60)
+            if (signed.data) setEvidenceLinks((s) => ({ ...s, [e.id]: signed.data.signedUrl }))
+          }
+        })
+        // cleanup when id changes/unmount
+        return () => { if (msgSub && msgSub.unsubscribe) msgSub.unsubscribe(); if (evSub && evSub.unsubscribe) evSub.unsubscribe() }
       }
     })()
   }, [id])

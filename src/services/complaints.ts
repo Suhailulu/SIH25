@@ -49,3 +49,18 @@ export async function getEvidenceSignedUrl(path: string, expiresSec = 60) {
     return { data: null, error: err }
   }
 }
+
+export function subscribeToEvidence(complaintId: string, onInsert: (payload: any) => void) {
+  if (!complaintId) return null
+  const channel = supabase.channel(`public:evidence:complaint=${complaintId}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'evidence', filter: `complaint_id=eq.${complaintId}` }, (payload) => {
+      try { onInsert(payload.new) } catch (e) { console.error('evidence cb error', e) }
+    })
+    .subscribe()
+
+  return {
+    unsubscribe: async () => {
+      try { await channel.unsubscribe() } catch (e) { console.error('unsubscribe error', e) }
+    }
+  }
+}

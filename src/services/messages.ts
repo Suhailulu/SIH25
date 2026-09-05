@@ -33,3 +33,18 @@ export async function sendMessage(complaintId: string, senderId: string, message
 
   return { data, error: null }
 }
+
+export function subscribeToMessages(complaintId: string, onInsert: (payload: any) => void) {
+  if (!complaintId) return null
+  const channel = supabase.channel(`public:complaint_messages:complaint=${complaintId}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'complaint_messages', filter: `complaint_id=eq.${complaintId}` }, (payload) => {
+      try { onInsert(payload.new) } catch (e) { console.error('messages cb error', e) }
+    })
+    .subscribe()
+
+  return {
+    unsubscribe: async () => {
+      try { await channel.unsubscribe() } catch (e) { console.error('unsubscribe error', e) }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { getNotificationsForUser, markNotificationRead, markAllNotificationsRead } from '../services/notifications'
+import { getNotificationsForUser, markNotificationRead, markAllNotificationsRead, subscribeToNotifications } from '../services/notifications'
 
 export default function NotificationsPage() {
   const { user } = useAuth()
@@ -9,10 +9,17 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     if (!user) return
-    getNotificationsForUser(user.id).then((res) => {
+    let unsub: any = null
+    ;(async () => {
+      const res = await getNotificationsForUser(user.id)
       setLoading(false)
       if (res.data) setNotifications(res.data)
-    })
+      unsub = subscribeToNotifications(user.id, (n) => {
+        setNotifications((s) => [n, ...s])
+      })
+    })()
+
+    return () => { if (unsub && unsub.unsubscribe) unsub.unsubscribe() }
   }, [user])
 
   async function handleMarkRead(id: string) {
